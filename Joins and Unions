@@ -1,0 +1,115 @@
+1. INNER JOIN
+When to Use: Use an INNER JOIN when you only want to retrieve the rows where there is a match in both tables. This is the most common type of join.
+Example Use Case: If you're running a query to list orders and their customers, and you only want the orders that have customer data associated with them.
+Impractical: If you need to retrieve rows from both tables even when there is no matching data, INNER JOIN wouldn't work as it filters out non-matching rows.
+
+SELECT orders.order_id, customers.customer_name
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.customer_id;
+2. LEFT JOIN (or LEFT OUTER JOIN)
+When to Use: Use a LEFT JOIN when you want all rows from the left table, and the matching rows from the right table. If there’s no match, NULL will be returned for columns from the right table.
+Example Use Case: If you need a list of all customers and their orders, even if they haven't placed any orders. This way, you'll see customers with NULL in the order fields.
+Impractical: If you only care about data that has a match in both tables, the LEFT JOIN might return more data than you need, which could result in performance issues.
+
+SELECT customers.customer_name, orders.order_id
+FROM customers
+LEFT JOIN orders ON customers.customer_id = orders.customer_id;
+
+
+
+
+
+3. RIGHT JOIN (or RIGHT OUTER JOIN)
+When to Use: Use a RIGHT JOIN when you want all rows from the right table, and the matching rows from the left table. If there’s no match, NULL will be returned for columns from the left table.
+Example Use Case: If you want to list all orders and their customers, and you want to include orders even if they don’t have an associated customer (for example, in case of orphaned records).
+Impractical: Similar to LEFT JOIN, if you're not interested in rows without matching records in the left table, RIGHT JOIN may introduce unnecessary data.
+
+SELECT orders.order_id, customers.customer_name
+FROM orders
+RIGHT JOIN customers ON orders.customer_id = customers.customer_id;
+
+
+
+4. FULL OUTER JOIN
+When to Use: Use a FULL OUTER JOIN when you want all rows from both tables, with matching rows from both sides when available. If there’s no match, NULL will be returned for missing data from either table.
+Example Use Case: If you need a comprehensive list of all customers and orders, including customers with no orders and orders with no customers (for example, data issues like mismatched IDs or deleted records).
+Impractical: FULL OUTER JOIN can produce a lot of NULL values if there's sparse data, which may not be necessary in many cases, making the query inefficient for large datasets.
+
+SELECT orders.order_id, customers.customer_name
+FROM orders
+FULL OUTER JOIN customers ON orders.customer_id = customers.customer_id;
+When Not to Use Joins
+When You Only Need One Table’s Data: If you're only querying one table (for example, a list of products), adding joins is unnecessary and could harm performance.
+Large Datasets: Joins, especially FULL OUTER JOIN, can be resource-intensive with large datasets. If you're working with big tables, consider limiting your results with WHERE clauses or indexing to optimize performance.
+
+
+
+
+
+Summary:
+Use INNER JOIN when you need matching data between two tables.
+Use LEFT JOIN when you need all records from the left table, even if there is no match in the right table.
+Use RIGHT JOIN when you need all records from the right table, even if there is no match in the left table.
+Use FULL OUTER JOIN when you need all records from both tables, regardless of matching data.
+This understanding of when and why you would use each type of join helps in applying them correctly in various situations.
+
+
+
+
+
+
+1. UNION (Basic UNION)
+When to Use: Use UNION when you want to combine the results of two or more SELECT statements into a single result set. By default, UNION removes duplicate rows, returning only unique records from all queries combined.
+Example Use Case: If you have two tables, employees and contractors, and you want to combine the lists of people from both tables, but you want to avoid duplicates.
+Impractical: If you want to keep duplicate rows in the result set, UNION may not be the right choice since it removes duplicates. For that, you should use UNION ALL instead.
+
+SELECT name FROM employees
+UNION
+SELECT name FROM contractors;
+Key Points:
+
+Each SELECT in a UNION must return the same number of columns.
+The columns being selected must have compatible data types.
+2. UNION ALL
+When to Use: Use UNION ALL when you want to combine the results of multiple SELECT statements and keep all duplicates. It doesn’t remove duplicate rows, so it's faster than UNION because no extra work is needed to filter duplicates.
+Example Use Case: If you're querying two tables and want to see all rows from both tables, including duplicates. For example, if both tables have some overlapping data and you need to analyze the total number of occurrences.
+Impractical: If you want to eliminate duplicates from the result set, UNION ALL won't help, as it will include all rows, even if they are repeated.
+
+SELECT name FROM employees
+UNION ALL
+SELECT name FROM contractors;
+When to Use Unions vs. Joins
+Use UNION (or UNION ALL) when you want to combine data from multiple queries vertically (i.e., adding rows). This is useful when you're querying multiple tables that have the same structure but different data.
+Use JOIN when you want to combine data horizontally (i.e., adding columns). Joins help you retrieve related data from different tables that are connected by keys.
+Practical Example: Combining Data from Different Regions
+Imagine you have two tables, us_sales and eu_sales, both of which contain similar columns (e.g., sale_id, amount, product_id). If you want to combine the sales data from both regions, you could use a UNION or UNION ALL.
+
+Example: Using UNION to Combine Sales Data
+
+
+SELECT sale_id, amount, product_id
+FROM us_sales
+UNION
+SELECT sale_id, amount, product_id
+FROM eu_sales;
+This will return all unique sales records from both tables.
+
+Example: Using UNION ALL to Combine Sales Data
+
+
+SELECT sale_id, amount, product_id
+FROM us_sales
+UNION ALL
+SELECT sale_id, amount, product_id
+FROM eu_sales;
+This will return all sales records, including duplicates, if any.
+
+Things to Remember About Unions:
+Same Number of Columns: The SELECT statements in the UNION must return the same number of columns.
+Column Data Types: The corresponding columns in each SELECT must have compatible data types. If they don't match, you'll get an error.
+Performance: UNION can be slower than UNION ALL because it eliminates duplicates. If you don’t care about duplicates, use UNION ALL for better performance.
+
+Summary:
+Use UNION to combine results from multiple queries and remove duplicates.
+Use UNION ALL to combine results from multiple queries while keeping duplicates.
+When to Avoid: If you need to combine data from tables with different structures, a JOIN might be more appropriate. Also, for large datasets where performance is critical, avoid UNION if duplicates aren’t a concern and use UNION ALL instead.
